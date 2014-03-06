@@ -1,36 +1,29 @@
-ildasm.vim
-==========
+javap.vim
+=========
 
 Description
 -----------
-Windows SDKに付属するildasm.exe用のvimプラグインです。
-ildasmといのはVisual Studioの「オブジェクトブラウザ」の単体版ツールです。
-.Net Frameworkのアセンブリファイルからクラスの定義を調べることが可能です。
+javap用のvimプラグインです。
+jarに含まれるクラスの一覧表示と、その一覧から指定したクラスの定義を調べることが可能です。
 
 Requirements
 ------------
 必要なのものは次のとおり。
 
-* ildasm.exe (Windows SDK)
+* jar
+* javap
 
 Setting
 -------
-# アセンブリの設定
-次のように必要なアセンブリを.vimrcに定義する
+# 読み込むjarの設定
+次のように必要なjarを.vimrcに定義する
 
-    let g:ildasm_assemblies = [
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\mscorlib.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\WindowsBase.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\PresentationCore.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\PresentationFramework.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\System.Core.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\System.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\System.Drawing.dll',
-      \ 'C:\Program Files\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Profile\Client\System.Net.dll',
+    let g:javap_jars = [
+      \ $JAVA_HOME . '/jre/lib/rt.jar',
       \ ]
 
-# ildasmのパス指定
-ildasm.exeにパスを通す
+# jarとjavapのパス指定
+jarとjavapにパスを通す
 
 Usage
 -----
@@ -40,7 +33,7 @@ Usage
 
 (初回起動後は遅いですが、キャッシュするので次回以降は早いはず)
 
-    :Ildasm
+    :Javap
 
 * クラス一覧
 
@@ -53,31 +46,20 @@ Backspaceでクラス一覧に戻ります。
 
 * キャッシュのクリア
 
-一度ロードしたクラス一覧は~/.vim_ildasm にキャッシュします。
+一度ロードしたクラス一覧は~/.vim_javap にキャッシュします。
 これをクリアする場合は、次のコマンドを実行してください。
 
-    :IldasmClearCache
+    :JavapClearCache
 
 ScreenShots
 -----------
 
-* Visual Studioのオブジェクトブラウザ
-
-    ![Visual Studio Object Browser](http://yuratomo.up.seesaa.net/image/object_browser.PNG "object browser")
-
-* Ildasm クラス一覧
-
-    ![Ildasm Class List](http://yuratomo.up.seesaa.net/image/ildasm_classes.PNG "Class List")
-
-
-* Ildasm クラス定義
-
-    ![Ildasm Class Define](http://yuratomo.up.seesaa.net/image/ildasm_classdefine.PNG "Class Define")
+* Javap クラス一覧
 
 
 HISTORY
 -------
-*v1.0 2012.07.27 yuratomo
+*v1.0 2014.03.06 yuratomo
 
 Initial version
 
