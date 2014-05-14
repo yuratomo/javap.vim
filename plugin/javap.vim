@@ -29,6 +29,7 @@ endif
 command! -nargs=* Javap           :call javap#start(0)
 command! -nargs=* JavapSplit      :call javap#start(1)
 command! -nargs=* JavapClearCache :call javap#clearCache()
+command! -nargs=* JavapReload     :call javap#reload()
 
 let g:loaded_javap = 1
 

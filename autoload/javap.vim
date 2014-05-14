@@ -271,6 +271,11 @@ function! javap#clearCache()
   call s:message('Cache cleared!!')
 endfunction
 
+function! javap#reload()
+  call javap#clearCache()
+  call javap#start(0)
+endfunction
+
 function! s:message(msg)
   redraw
   echo 'javap: ' . a:msg
