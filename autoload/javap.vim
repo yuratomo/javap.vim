@@ -23,7 +23,7 @@ function! s:usage()
   setl bt=nofile noswf nowrap hidden nolist nomodifiable ft=vim
 endfunction
 
-function! javap#start(mode)
+function! javap#start(mode, ...)
   if !executable(g:javap_command)
     call s:message(g:javap_command . ' is not exists.')
     return
@@ -39,6 +39,11 @@ function! javap#start(mode)
   endif
 
   call s:openWindow(a:mode)
+  if len(a:000) > 0
+    let b:pattern = a:1
+  else
+    let b:pattern = '.'
+  endif
   call s:list()
 
   if ret == 1
@@ -102,8 +107,30 @@ function! javap#open()
         endfor
       endfor
     endif
-    call s:message(word . ' not found')
+    " yank function or const
+    "call s:message(word . ' not found')
+    call s:yank_define(cline)
   endif
+endfunction
+
+function! s:yank_define(line)
+  let end = stridx(a:line, '(')
+  if end == -1
+    let end = len(a:line) - 1
+    if end == -1
+      return
+    endif
+    let fin = end
+  else
+    let fin = strridx(a:line, ')')
+  endif
+  let end = end - 1
+  let start = strridx(a:line, ' ', end)
+  if start == -1
+    return
+  endif
+  let @"= a:line[ start+1 : fin ]
+  call s:message("yank " . @")
 endfunction
 
 function! javap#back()
@@ -183,6 +210,9 @@ function! s:list()
   for jar in g:jar_list
     let path = jar.path
     for class in jar.classes
+      if match(class, b:pattern) == -1
+        continue
+      endif
       call setline(idx, class . s:javap_separator . path)
       let idx += 1
     endfor

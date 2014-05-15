@@ -26,8 +26,8 @@ if !exists("g:javap_cache")
   let g:javap_cache = $home.'\\.vim_javap'
 endif
 
-command! -nargs=* Javap           :call javap#start(0)
-command! -nargs=* JavapSplit      :call javap#start(1)
+command! -nargs=* Javap           :call javap#start(0, <f-args>)
+command! -nargs=* JavapSplit      :call javap#start(1, <f-args>)
 command! -nargs=* JavapClearCache :call javap#clearCache()
 command! -nargs=* JavapReload     :call javap#reload()
 
