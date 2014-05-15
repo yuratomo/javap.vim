@@ -114,13 +114,17 @@ function! javap#open()
 endfunction
 
 function! s:yank_define(line)
+  let prefix = ''
   let end = stridx(a:line, '(')
   if end == -1
     let end = len(a:line) - 1
     if end == -1
       return
     endif
-    let fin = end
+    let fin = end - 1
+    if exists('b:current_class')
+      let prefix = b:current_class . "."
+    endif
   else
     let fin = strridx(a:line, ')')
   endif
@@ -129,7 +133,7 @@ function! s:yank_define(line)
   if start == -1
     return
   endif
-  let @"= a:line[ start+1 : fin ]
+  let @"= prefix . a:line[ start+1 : fin ]
   call s:message("yank " . @")
 endfunction
 
@@ -250,6 +254,7 @@ function! s:show(...)
     call setline(idx+1, javap#api#getClassInfo(part[1],part[0]))
     setl nomodifiable
     call cursor(idx+1,0)
+    let b:current_class = part[0]
   endif
 endfunction
 
