@@ -11,8 +11,8 @@ function! s:usage()
     \ "[USAGE]",
     \ "1. Append your _vimrc following settings.",
     \ "",
-    \ "let g:javap_jars = [",
-    \ " \\ $JAVA_HOME . '/jre/lib/rt.jar',",
+    \ "let g:javap_defines = [",
+    \ " \\ { 'jar' : $JAVA_HOME . '/jre/lib/rt.jar', 'javadoc' : 'http://docs.oracle.com/javase/jp/6/api/%s.html' }, ",
     \ " \\ ]",
     \ "",
     \ "2. Input command \":Javap<ENTER>\"",
@@ -59,10 +59,15 @@ function! javap#exit()
   bd
 endfunction
 
-function! javap#open()
+function! javap#open(shift)
   if s:javap_mode == s:MODE_LIST
     let b:javap_line = line('.')
-    call s:show()
+    if a:shift == 0
+      call s:show()
+    else
+      let part = split(getline('.'), s:javap_separator)
+      call s:w3m(part[0], part[1])
+    endif
   elseif s:javap_mode == s:MODE_BODY
     let pos = col('.')
     let tline = getline(1)
@@ -99,7 +104,11 @@ function! javap#open()
           for class in jar.classes
             if class == word
               let b:javap_line = idx
-              call s:show([ class , path ])
+              if a:shift == 0
+                call s:show([ class , path ])
+              else
+                call s:w3m(class , path)
+              endif
               return
             endif
             let idx += 1
@@ -192,6 +201,8 @@ function! s:openWindow(mode)
 
   if a:mode == 1
     new
+  elseif a:mode == 2
+    bo vert new
   endif
   silent edit `=bufname`
   setl bt=nofile noswf nowrap hidden nolist nomodifiable ft=javap
@@ -200,9 +211,10 @@ function! s:openWindow(mode)
     au!
     exe 'au BufDelete <buffer> call javap#exit()'
   augroup END
-  nnoremap <buffer> <CR> :call javap#open()<CR>
-  nnoremap <buffer> <BS> :call javap#back()<CR>
-  nnoremap <buffer> <F1> :call javap#help()<CR>
+  nnoremap <buffer> <CR>   :call javap#open(0)<CR>
+  nnoremap <buffer> <s-CR> :call javap#open(1)<CR>
+  nnoremap <buffer> <BS>   :call javap#back()<CR>
+  nnoremap <buffer> <F1>   :call javap#help()<CR>
 endfunction
 
 function! s:list()
@@ -258,8 +270,24 @@ function! s:show(...)
   endif
 endfunction
 
+function! s:w3m(class, jar)
+  if exists('g:loaded_w3m')
+    let url = s:getUrl(a:jar)
+    call w3m#Open(g:w3m#OPEN_SPLIT, printf(url, substitute(a:class, '\.', '/', 'g')))
+  endif
+endfunction
+
+function! s:getUrl(jar)
+  for jdef in g:javap_defines
+    if jdef.jar == a:jar
+      return jdef.javadoc
+    endif
+  endfor
+  return "%s"
+endfunction
+
 function! s:load()
-  if !exists('g:javap_jars')
+  if !exists('g:javap_defines')
     return -1
   endif
   if exists('g:jar_list')
@@ -289,11 +317,11 @@ function! s:load()
     return 2
   endif
 
-  for path in g:javap_jars
-    let classes = javap#api#getClassList(path)
+  for jdef in g:javap_defines
+    let classes = javap#api#getClassList(jdef.jar)
     redraw
-    call s:message( 'loading ' . substitute(path, ".*\\", '', 'g') . ' ... ')
-    call add(g:jar_list, { 'path' : path, 'classes' : classes })
+    call s:message( 'loading ' . substitute(jdef.jar, ".*\\", '', 'g') . ' ... ')
+    call add(g:jar_list, { 'path' : jdef.jar, 'classes' : classes })
   endfor
   return 1
 endfunction

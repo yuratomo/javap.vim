@@ -18,8 +18,8 @@ Setting
 # 読み込むjarの設定
 次のように必要なjarを.vimrcに定義する
 
-    let g:javap_jars = [
-      \ $JAVA_HOME . '/jre/lib/rt.jar',
+    let g:javap_defines = [
+      \ { 'jar' : $JAVA_HOME . '/jre/lib/rt.jar', 'javadoc' : 'http://docs.oracle.com/javase/jp/6/api/%s.html' },
       \ ]
 
 # jarとjavapのパス指定

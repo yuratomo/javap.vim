@@ -28,6 +28,7 @@ endif
 
 command! -nargs=* Javap           :call javap#start(0, <f-args>)
 command! -nargs=* JavapSplit      :call javap#start(1, <f-args>)
+command! -nargs=* JavapVSplit     :call javap#start(2, <f-args>)
 command! -nargs=* JavapClearCache :call javap#clearCache()
 command! -nargs=* JavapReload     :call javap#reload()
 
