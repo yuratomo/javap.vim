@@ -66,7 +66,7 @@ function! javap#open(shift)
       call s:show()
     else
       let part = split(getline('.'), s:javap_separator)
-      call s:w3m(part[0], part[1])
+      call s:javadoc(part[0], part[1])
     endif
   elseif s:javap_mode == s:MODE_BODY
     let pos = col('.')
@@ -107,7 +107,7 @@ function! javap#open(shift)
               if a:shift == 0
                 call s:show([ class , path ])
               else
-                call s:w3m(class , path)
+                call s:javadoc(class , path)
               endif
               return
             endif
@@ -155,43 +155,6 @@ function! javap#back()
   endif
 endfunction
 
-function! javap#help()
-  if exists('g:loaded_w3m') && g:loaded_w3m == 1
-    let pos = col('.')
-    let cline = getline('.')
-    let s = s:matchr(cline, '[^a-zA-Z0-9_.]', pos)
-    let e = match(cline, '[^a-zA-Z0-9_.]', pos)
-    if s == -1
-      let s = 0
-    else
-      let s += 1
-    endif
-    if e == -1
-      let e = len(cline) - 1
-    else
-      let e -= 1
-    endif
-
-    let word = cline[ s : e ]
-
-    let id = 1
-    while buflisted('w3m-' . id) != 0
-      let id += 1
-    endwhile
-    let winnum = winnr('$')
-    for winno in range(1, winnum)
-      let bn = bufname(winbufnr(winno))
-      if bn =~ 'w3m-*'
-         exe winno . "wincmd w"
-         exe ':W3m msdnl ' . word
-         return
-      endif
-    endfor
-
-    exe ':W3mSplit msdnl ' . word
-  endif
-endfunction
-
 function! s:openWindow(mode)
   let id = 1
   while buflisted(s:javap_title_prefix . id)
@@ -214,7 +177,6 @@ function! s:openWindow(mode)
   nnoremap <buffer> <CR>   :call javap#open(0)<CR>
   nnoremap <buffer> <s-CR> :call javap#open(1)<CR>
   nnoremap <buffer> <BS>   :call javap#back()<CR>
-  nnoremap <buffer> <F1>   :call javap#help()<CR>
 endfunction
 
 function! s:list()
@@ -270,10 +232,16 @@ function! s:show(...)
   endif
 endfunction
 
-function! s:w3m(class, jar)
+function! s:javadoc(class, jar)
   if exists('g:loaded_w3m')
-    let url = s:getUrl(a:jar)
-    call w3m#Open(g:w3m#OPEN_SPLIT, printf(url, substitute(a:class, '\.', '/', 'g')))
+    let url = printf(s:getUrl(a:jar), substitute(a:class, '\.', '/', 'g'))
+    let w3mwinnr = bufwinnr('w3m-')
+    if w3mwinnr == -1
+      call w3m#Open(g:w3m#OPEN_SPLIT, url)
+    else
+      exe w3mwinnr . "wincmd w"
+      call w3m#Open(g:w3m#OPEN_NORMAL, url)
+    endif
   endif
 endfunction
 
