@@ -10,6 +10,11 @@ function! javap#api#getClassList(path)
 endfunction
 
 function! javap#api#getClassInfo(path, class)
+  let ssl = &shellslash
+  if ssl == 1
+    setl noshellslash
+  endif
+
   let cmd = join( [
     \ g:javap_command,
     \ '-public',
@@ -17,9 +22,12 @@ function! javap#api#getClassInfo(path, class)
     \ shellescape(a:path),
     \ a:class
     \ ],  ' ')
-    "\ '-constants',
+  let res = s:system(cmd)
 
-  return split(s:system(cmd), '\n')[1:]
+  if ssl == 1
+    setl shellslash
+  endif
+  return split(res, '\n')[1:]
 endfunction
 
 function! s:system(string)
