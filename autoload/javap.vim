@@ -142,8 +142,8 @@ function! s:yank_define(line)
   if start == -1
     return
   endif
-  let @"= prefix . a:line[ start+1 : fin ]
-  call s:message("yank " . @")
+  let @*= prefix . substitute(a:line[ start+1 : fin ], '\<\w*\.', '', 'g')
+  call s:message("yank " . @*)
 endfunction
 
 function! javap#back()
@@ -188,7 +188,7 @@ function! s:list()
   for jar in g:jar_list
     let path = jar.path
     for class in jar.classes
-      if match(class, b:pattern) == -1
+      if b:pattern != '.' && match(class, b:pattern) == -1
         continue
       endif
       call setline(idx, class . s:javap_separator . path)
